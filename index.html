@@ -434,12 +434,20 @@ bg.addEventListener('click',()=>setM(!mm.classList.contains('open')));
 mm.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>setM(false)));
 const vis=new Map();const mio=new IntersectionObserver(es=>{es.forEach(e=>vis.set(e.target.id,e.isIntersecting));mcta.classList.toggle('hide',[...vis.values()].some(Boolean))},{threshold:.15});
 mio.observe(visit);mio.observe(document.getElementById('hero'));
+const LEAD_URL='https://script.google.com/macros/s/AKfycbxFeJLXaVJhB3J-vkt0TmNM_r4HLhlPyy-VXagQBWRr36g1Nwy2so6dSdnYQ_Fn6vQF/exec';
 const vf=document.getElementById('vf');
 vf.addEventListener('submit',e=>{e.preventDefault();const nm=vf.nm.value.trim(),ph=vf.ph.value.replace(/\D/g,'');const er=document.getElementById('err');
  if(!nm){er.textContent='Please enter your name.';vf.nm.focus();return}
  if(ph.length<10){er.textContent='Please enter a 10-digit phone number.';vf.ph.focus();return}
  if(!vf.cs.checked){er.textContent='Please agree to be contacted so we can arrange your visit.';vf.cs.focus();return}
- er.textContent='';vf.classList.add('sent')});
+ er.textContent='';
+ const q=new URLSearchParams(location.search),ref=document.referrer;
+ let src=q.get('utm_source')||'';
+ if(!src){if(q.get('fbclid')||/facebook|instagram|fb\.|ig\./i.test(ref))src='Facebook/Instagram';else if(q.get('gclid')||/google\./i.test(ref))src='Google';else src=ref?'Referral: '+new URL(ref).hostname:'Direct'}
+ const data=new URLSearchParams({name:nm,phone:vf.ph.value.trim(),date:vf.dt.value,size:vf.sz.value,consent:vf.cs.checked?'Yes':'No',source:src,campaign:[q.get('utm_campaign'),q.get('utm_content')].filter(Boolean).join(' / '),page:location.href.split('#')[0]});
+ const btn=vf.querySelector('button[type=submit]');btn.disabled=true;btn.textContent='Sending…';
+ fetch(LEAD_URL,{method:'POST',mode:'no-cors',body:data}).then(()=>{vf.classList.add('sent')}).catch(()=>{er.textContent='Could not send right now. Please check your internet and try again.';btn.disabled=false;btn.textContent='Request a site visit'});
+});
 }
 </script>
 </body>
